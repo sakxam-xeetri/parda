@@ -1,4 +1,9 @@
-<!DOCTYPE html>
+#ifndef HTML_H
+#define HTML_H
+
+#include <pgmspace.h>
+
+const char INDEX_HTML[] PROGMEM = R"rawliteral(<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -11,9 +16,6 @@
             --primary: #0f9d58;
             --primary-dark: #1b5e20;
             --accent-gold: #b29022;
-            --bg-color: #f7f9f7;
-            --panel-bg: #ffffff;
-            --border-color: #1b5e20;
             --text-color: #2e3a30;
         }
 
@@ -21,47 +23,42 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            border-radius: 0 !important; /* Sharp industrial edges */
+            border-radius: 0 !important; /* Strict sharp edges */
         }
 
         body {
             font-family: 'Outfit', sans-serif;
-            background-color: var(--bg-color);
-            background-image: radial-gradient(rgba(27, 94, 32, 0.04) 1px, transparent 0);
-            background-size: 16px 16px;
+            background-color: #ffffff; /* White background */
             color: var(--text-color);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 20px 10px;
+            justify-content: flex-start;
+            padding: 30px 16px;
         }
 
-        .container {
+        .wrapper {
             width: 100%;
-            max-width: 480px;
-            border: 3px double var(--primary-dark);
-            background-color: var(--panel-bg);
-            padding: 30px 20px;
-            box-shadow: 0 10px 25px rgba(27, 94, 32, 0.06);
+            max-width: 440px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
         }
 
         header {
             text-align: center;
-            margin-bottom: 25px;
-            border-bottom: 2px solid var(--accent-gold);
-            padding-bottom: 18px;
+            margin-bottom: 5px;
         }
 
         h1 {
             font-family: 'Cinzel', serif;
-            font-size: clamp(1.15rem, 5vw, 1.4rem);
+            font-size: clamp(1.2rem, 5.5vw, 1.5rem);
             font-weight: 800;
-            color: var(--primary-dark);
+            color: var(--primary-dark); /* Green school text */
             letter-spacing: 0.5px;
             line-height: 1.35;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             text-transform: uppercase;
         }
 
@@ -92,28 +89,23 @@
             font-weight: 600;
         }
 
-        /* Status & Live Progress Bar */
+        /* Borderless Status Area */
         .status-panel {
-            margin-bottom: 25px;
-            border: 1px solid var(--primary-dark);
-            background-color: #fcfdfc;
-            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
         }
 
         .status-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            font-size: 0.85rem;
+            gap: 8px;
+            font-size: 0.95rem;
             letter-spacing: 1.5px;
             text-transform: uppercase;
             font-weight: 700;
-        }
-
-        .status-left {
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         /* Pulsing Status LED Indicator */
@@ -123,6 +115,7 @@
             background-color: var(--primary-dark);
             box-shadow: 0 0 4px var(--primary-dark);
             transition: all 0.3s ease;
+            display: inline-block;
         }
 
         .led-dot.led-opening {
@@ -157,13 +150,15 @@
 
         .progress-area {
             display: none;
-            margin-top: 12px;
+            width: 100%;
+            margin-top: 5px;
         }
 
         .progress-container {
             height: 6px;
             background-color: #e8eee8;
             overflow: hidden;
+            width: 100%;
         }
 
         .progress-bar {
@@ -186,18 +181,17 @@
             justify-content: space-between;
             font-size: 0.7rem;
             color: #557a5b;
-            margin-top: 4px;
+            margin-top: 6px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        /* Tactile Control Buttons */
+        /* Flat Control Buttons */
         .control-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 16px;
-            margin-bottom: 25px;
         }
 
         .btn {
@@ -206,63 +200,42 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1.5px;
-            padding: 20px 10px; /* Large, finger-friendly touch target */
-            background-color: #ffffff;
-            border: 2px solid var(--primary-dark);
+            padding: 18px 10px; /* Comfortable touch target */
+            border: none;
             cursor: pointer;
             outline: none;
             user-select: none;
-            touch-action: manipulation; /* Eliminate mobile tap latency */
-            position: relative;
-            transition: transform 0.05s ease, box-shadow 0.05s ease;
+            touch-action: manipulation; /* Instant mobile trigger */
+            transition: opacity 0.1s ease;
         }
 
-        /* Brutalist 2D physical button click mechanics */
         .btn-open {
-            border-color: var(--primary-dark);
-            color: var(--primary-dark);
-            box-shadow: 4px 4px 0px var(--primary-dark);
-        }
-
-        .btn-open:active:not(:disabled) {
-            transform: translate(4px, 4px);
-            box-shadow: 0px 0px 0px var(--primary-dark);
+            background-color: var(--primary-dark);
+            color: #ffffff;
         }
 
         .btn-close {
-            border-color: #d32f2f;
-            color: #d32f2f;
-            box-shadow: 4px 4px 0px #d32f2f;
-        }
-
-        .btn-close:active:not(:disabled) {
-            transform: translate(4px, 4px);
-            box-shadow: 0px 0px 0px #d32f2f;
+            background-color: #d32f2f;
+            color: #ffffff;
         }
 
         .btn-stop {
             grid-column: span 2;
-            border-color: var(--accent-gold);
-            color: var(--accent-gold);
-            box-shadow: 4px 4px 0px var(--accent-gold);
+            background-color: var(--accent-gold);
+            color: #ffffff;
         }
 
-        .btn-stop:active:not(:disabled) {
-            transform: translate(4px, 4px);
-            box-shadow: 0px 0px 0px var(--accent-gold);
+        .btn:active {
+            opacity: 0.85;
         }
 
         .btn:disabled {
             opacity: 0.25;
             cursor: not-allowed;
-            box-shadow: none !important;
-            transform: none !important;
         }
 
-        /* Settings Panel styling */
+        /* Settings styling */
         .settings {
-            border-top: 1px solid rgba(27, 94, 32, 0.15);
-            padding-top: 20px;
             display: flex;
             flex-direction: column;
             gap: 18px;
@@ -300,7 +273,7 @@
         input[type="range"] {
             -webkit-appearance: none;
             width: 100%;
-            height: 6px; /* Thick track for easy sliding */
+            height: 6px; /* Thick mobile slide track */
             background: #e8eee8;
             outline: none;
         }
@@ -308,7 +281,7 @@
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 22px; /* Huge hit target for thumb input */
+            width: 22px; /* Large touch target */
             height: 22px;
             background: var(--primary-dark);
             cursor: pointer;
@@ -336,7 +309,7 @@
         .checkmark {
             width: 16px;
             height: 16px;
-            border: 2px solid var(--border-color);
+            border: 2px solid #a5bda8;
             display: inline-block;
             position: relative;
             background-color: #ffffff;
@@ -380,12 +353,11 @@
             padding: 40px 60px;
             text-align: center;
             background-color: #ffffff;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
 
         .countdown-num {
             font-family: 'Cinzel', serif;
-            font-size: 7rem;
+            font-size: 6rem;
             color: var(--primary-dark);
             font-weight: 800;
             line-height: 1;
@@ -401,15 +373,20 @@
         }
 
         footer {
-            margin-top: 25px;
+            margin-top: 40px;
             text-align: center;
-            font-size: 0.6rem;
+            font-size: 0.65rem;
             letter-spacing: 1px;
             color: #7c8e7e;
             text-transform: uppercase;
-            border-top: 1px solid rgba(27, 94, 32, 0.15);
             width: 100%;
-            padding-top: 12px;
+        }
+
+        .builder-credit {
+            margin-top: 6px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            letter-spacing: 1.5px;
         }
 
         /* Animations */
@@ -424,10 +401,10 @@
             100% { opacity: 0.1; }
         }
 
-        /* Responsive Mobile Layout Adaptations */
+        /* Responsive Mobile Adaptations */
         @media (max-width: 415px) {
-            .container {
-                padding: 25px 15px;
+            body {
+                padding: 20px 10px;
             }
             .control-grid {
                 grid-template-columns: 1fr; /* Stack buttons vertically on small mobile */
@@ -449,7 +426,7 @@
 </head>
 <body>
 
-    <div class="container">
+    <div class="wrapper">
         <header>
             <h1>Bhu Pu Sainik Rising Secondary English School</h1>
             <div class="location">Rampur-5, Palpa, Nepal</div>
@@ -460,10 +437,8 @@
         <!-- Status & Progress Display -->
         <div class="status-panel">
             <div class="status-header">
-                <div class="status-left">
-                    <span id="ledIndicator" class="led-dot"></span>
-                    <span class="status-label">System Status:</span>
-                </div>
+                <span id="ledIndicator" class="led-dot"></span>
+                <span class="status-label">System Status:</span>
                 <span id="statusText" class="status-val">IDLE</span>
             </div>
             
@@ -509,6 +484,11 @@
                 </label>
             </div>
         </div>
+
+        <footer>
+            Curtain Control Terminal v1.4.0
+            <div class="builder-credit">Built by Sakhyam Bastakoti</div>
+        </footer>
     </div>
 
     <!-- Countdown Overlay -->
@@ -518,10 +498,6 @@
             <div class="countdown-text">Unveiling Ceremony</div>
         </div>
     </div>
-
-    <footer>
-        Curtain Control Terminal v1.3.0
-    </footer>
 
     <script>
         let systemState = "IDLE";
@@ -725,4 +701,6 @@
         }
     </script>
 </body>
-</html>
+</html>)rawliteral";
+
+#endif

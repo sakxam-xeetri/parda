@@ -31,7 +31,7 @@
 
 // --- System Constants & Objects ---
 const char* AP_SSID = "INAUGURATION-BHU-PU";
-const char* AP_PASSWORD = "12345678";
+const char* AP_PASSWORD = "";
 const byte DNS_PORT = 53;
 
 IPAddress AP_IP(192, 168, 4, 1);
@@ -222,7 +222,7 @@ void setupWebServer() {
   // Set HTTP server CORS headers (optional, helpful during dev testing)
   server.enableCORS(true);
   
-  server.start();
+  server.begin();
   Serial.println("HTTP Web Server started on port 80.");
 }
 
