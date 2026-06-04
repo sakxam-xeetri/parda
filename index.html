@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curtain Control - Bhu Pu Sainik School</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0f9d58;
+            --primary-dark: #1b5e20;
+            --accent-gold: #b29022;
+            --bg-color: #f4f6f4;
+            --panel-bg: #ffffff;
+            --border-color: #c8d3c9;
+            --text-color: #2e3a30;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            border-radius: 0 !important; /* Force sharp edges globally */
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 15px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid var(--primary-dark);
+            background-color: var(--panel-bg);
+            padding: 35px 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--primary-dark); /* Green school text */
+            letter-spacing: 1.5px;
+            line-height: 1.4;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .location {
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            color: #557a5b;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .iso-cert {
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            color: var(--primary);
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .motto {
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            color: var(--primary-dark);
+            font-style: italic;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+
+        /* Status Display */
+        .status-display {
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            background-color: #f8faf8;
+            font-weight: 600;
+        }
+
+        .status-label {
+            color: #557a5b;
+        }
+
+        .status-val {
+            color: var(--primary-dark);
+            margin-left: 5px;
+        }
+
+        .status-val.state-opening { color: #0288d1; }
+        .status-val.state-closing { color: #f57c00; }
+        .status-val.state-stopped { color: #d32f2f; }
+
+        /* Control Buttons */
+        .control-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 16px;
+            background: transparent;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-open {
+            border-color: var(--primary-dark);
+            color: var(--primary-dark);
+        }
+
+        .btn-open:hover:not(:disabled) {
+            background-color: var(--primary-dark);
+            color: #ffffff;
+        }
+
+        .btn-close {
+            border-color: #d32f2f;
+            color: #d32f2f;
+        }
+
+        .btn-close:hover:not(:disabled) {
+            background-color: #d32f2f;
+            color: #ffffff;
+        }
+
+        .btn-stop {
+            grid-column: span 2;
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+            font-weight: 700;
+        }
+
+        .btn-stop:hover:not(:disabled) {
+            background-color: var(--accent-gold);
+            color: #ffffff;
+        }
+
+        .btn:disabled {
+            opacity: 0.25;
+            cursor: not-allowed;
+        }
+
+        /* Configurations */
+        .settings {
+            border-top: 1px solid var(--border-color);
+            padding-top: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .setting-label {
+            font-size: 0.75rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #557a5b;
+        }
+
+        .setting-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 55%;
+        }
+
+        .setting-value {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            min-width: 45px;
+            text-align: right;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 2px;
+            background: var(--border-color);
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            background: var(--primary-dark);
+            cursor: pointer;
+        }
+
+        /* Classic Checkbox */
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #557a5b;
+            user-select: none;
+        }
+
+        .checkbox-container input {
+            display: none;
+        }
+
+        .checkmark {
+            width: 14px;
+            height: 14px;
+            border: 1px solid var(--border-color);
+            display: inline-block;
+            position: relative;
+        }
+
+        .checkbox-container input:checked + .checkmark::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary-dark);
+        }
+
+        /* Fullscreen countdown */
+        .countdown-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #ffffff; /* White background */
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .countdown-overlay.active {
+            opacity: 0.98;
+            pointer-events: auto;
+        }
+
+        .countdown-num {
+            font-family: 'Cinzel', serif;
+            font-size: 6rem;
+            color: var(--primary-dark);
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .countdown-text {
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #557a5b;
+        }
+
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.65rem;
+            letter-spacing: 1.5px;
+            color: #7c8e7e;
+            text-transform: uppercase;
+            border-top: 1px solid var(--border-color);
+            width: 100%;
+            padding-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Bhu Pu Sainik Rising Secondary English School</h1>
+            <div class="location">Rampur-5, Palpa, Nepal</div>
+            <div class="iso-cert">ISO 21001:2018 Certified Institution</div>
+            <div class="motto">"Come to Learn, Go to Serve"</div>
+        </header>
+
+        <!-- Status display -->
+        <div class="status-display">
+            <span class="status-label">System Status:</span>
+            <span id="statusText" class="status-val">IDLE</span>
+        </div>
+
+        <!-- Control Buttons -->
+        <div class="control-grid">
+            <button id="btnOpen" class="btn btn-open" onclick="triggerAction('open')">Open Curtain</button>
+            <button id="btnClose" class="btn btn-close" onclick="triggerAction('close')">Close Curtain</button>
+            <button id="btnStop" class="btn btn-stop" onclick="triggerAction('stop')">Emergency Stop</button>
+        </div>
+
+        <!-- Configurations -->
+        <div class="settings">
+            <div class="setting-row">
+                <span class="setting-label">Movement Duration</span>
+                <div class="setting-control">
+                    <input type="range" id="durationSlider" class="durationSlider" min="3" max="20" step="0.5" value="8" onchange="updateDuration(this.value)">
+                    <span id="durationVal" class="setting-value">8.0s</span>
+                </div>
+            </div>
+
+            <div class="setting-row">
+                <label class="checkbox-container">
+                    <input type="checkbox" id="countdownToggle" checked>
+                    <span class="checkmark"></span>
+                    Ceremonial 3s Delay
+                </label>
+
+                <label class="checkbox-container" id="simModeRow" style="display: none;">
+                    <input type="checkbox" id="simulatorToggle">
+                    <span class="checkmark"></span>
+                    Simulator Mode
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Countdown Overlay -->
+    <div id="countdownOverlay" class="countdown-overlay">
+        <div id="countdownNumber" class="countdown-num">3</div>
+        <div class="countdown-text">Unveiling Ceremony</div>
+    </div>
+
+    <footer>
+        Curtain Control Terminal v1.2.0
+    </footer>
+
+    <script>
+        let systemState = "IDLE";
+        let motorDuration = 8000;
+        let pollTimer = null;
+        let isSimulated = false;
+        
+        let simState = "IDLE";
+        let simDuration = 8000;
+        let simTimer = null;
+
+        const statusText = document.getElementById("statusText");
+        const durationSlider = document.getElementById("durationSlider");
+        const durationVal = document.getElementById("durationVal");
+        const countdownToggle = document.getElementById("countdownToggle");
+        const simulatorToggle = document.getElementById("simulatorToggle");
+        const simModeRow = document.getElementById("simModeRow");
+        const countdownOverlay = document.getElementById("countdownOverlay");
+        const countdownNumber = document.getElementById("countdownNumber");
+
+        window.addEventListener("DOMContentLoaded", () => {
+            const isLocal = window.location.hostname === "" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+            isSimulated = isLocal;
+            simulatorToggle.checked = isSimulated;
+            if (isLocal) {
+                simModeRow.style.display = "flex";
+            }
+            
+            updateDurationDisplay(durationSlider.value);
+            startPolling();
+        });
+
+        simulatorToggle.addEventListener("change", (e) => {
+            isSimulated = e.target.checked;
+        });
+
+        function updateDurationDisplay(val) {
+            durationVal.textContent = `${parseFloat(val).toFixed(1)}s`;
+            motorDuration = parseFloat(val) * 1000;
+        }
+
+        function updateDuration(val) {
+            updateDurationDisplay(val);
+            if (isSimulated) {
+                simDuration = motorDuration;
+            } else {
+                fetch(`/set_duration?seconds=${val}`, { method: 'POST' })
+                    .catch(err => console.error("Error setting duration:", err));
+            }
+        }
+
+        function applyStatus(state) {
+            systemState = state;
+            statusText.textContent = state;
+            
+            // Clean state class
+            statusText.className = "status-val";
+            
+            if (state === "OPENING") {
+                statusText.classList.add("state-opening");
+            } else if (state === "CLOSING") {
+                statusText.classList.add("state-closing");
+            } else if (state === "STOPPED") {
+                statusText.classList.add("state-stopped");
+            }
+        }
+
+        function triggerAction(action) {
+            if (action === 'open' && countdownToggle.checked) {
+                runCeremonialCountdown(() => {
+                    executeRequest(action);
+                });
+            } else {
+                executeRequest(action);
+            }
+        }
+
+        function runCeremonialCountdown(callback) {
+            countdownOverlay.classList.add("active");
+            let count = 3;
+            countdownNumber.textContent = count;
+            
+            const timer = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    countdownNumber.textContent = count;
+                } else if (count === 0) {
+                    countdownNumber.textContent = "GO";
+                } else {
+                    clearInterval(timer);
+                    countdownOverlay.classList.remove("active");
+                    callback();
+                }
+            }, 1000);
+        }
+
+        function executeRequest(action) {
+            if (isSimulated) {
+                handleSimRequest(action);
+            } else {
+                fetch(`/${action}`, { method: 'POST' })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.state) {
+                            applyStatus(data.state);
+                        }
+                    })
+                    .catch(err => {
+                        console.error(`Error requesting ${action}:`, err);
+                        if (action === 'open') applyStatus("OPENING");
+                        else if (action === 'close') applyStatus("CLOSING");
+                        else if (action === 'stop') applyStatus("STOPPED");
+                    });
+            }
+        }
+
+        function handleSimRequest(action) {
+            clearTimeout(simTimer);
+            if (action === 'open') {
+                simState = "OPENING";
+                applyStatus("OPENING");
+                simTimer = setTimeout(() => {
+                    simState = "IDLE";
+                    applyStatus("IDLE");
+                }, simDuration);
+            } else if (action === 'close') {
+                simState = "CLOSING";
+                applyStatus("CLOSING");
+                simTimer = setTimeout(() => {
+                    simState = "IDLE";
+                    applyStatus("IDLE");
+                }, simDuration);
+            } else if (action === 'stop') {
+                simState = "STOPPED";
+                applyStatus("STOPPED");
+                simTimer = setTimeout(() => {
+                    simState = "IDLE";
+                    applyStatus("IDLE");
+                }, 1500);
+            }
+        }
+
+        function startPolling() {
+            if (pollTimer) clearInterval(pollTimer);
+            pollTimer = setInterval(() => {
+                if (isSimulated) {
+                    applyStatus(simState);
+                } else {
+                    fetch('/status')
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data) {
+                                if (data.state) {
+                                    applyStatus(data.state);
+                                }
+                                if (data.motorDuration && !document.activeElement.classList.contains("durationSlider")) {
+                                    const sec = data.motorDuration / 1000;
+                                    durationSlider.value = sec;
+                                    updateDurationDisplay(sec);
+                                }
+                            }
+                        })
+                        .catch(err => console.debug("Offline status check failed:", err));
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
