@@ -1,4 +1,4 @@
-# 🎪 IoT Motorized Curtain Control System
+#  IoT Motorized Curtain Control System
 ### Bhu Pu Sainik Rising Secondary English School
 *Rampur-5, Palpa, Nepal*  
 **Motto:** *"Come to Learn, Go to Serve"*  
@@ -12,24 +12,24 @@ The system leverages an **ESP32** microcontroller acting as an autonomous Wi-Fi 
 
 ---
 
-## 🗺️ System Architecture & Data Flow
+##  System Architecture & Data Flow
 
 Below is the hardware topology and control interface data flow:
 
 ```mermaid
 graph TD
-    Client[📱 Mobile Phone / Laptop Web Browser] -- "HTTP POST (/open, /close, /stop)" --> ESP32["📶 ESP32 Access Point & Web Server<br>(192.168.4.1)"]
+    Client[ Mobile Phone / Laptop Web Browser] -- "HTTP POST (/open, /close, /stop)" --> ESP32[" ESP32 Access Point & Web Server<br>(192.168.4.1)"]
     ESP32 -- "JSON Status Updates" --> Client
     ESP32 -- "GPIO 27 & 26 (Digital Control)" --> L298N["🔌 L298N Motor Driver"]
-    ESP32 -- "GPIO 13 (Physical Trigger)" --> Button["🔘 Push Button (Active-LOW)"]
-    L298N -- "12V Polarity Switching" --> Motors["⚙️ 2x 12V Johnson Gear Motors"]
-    Power["⚡ 12V DC 2A Power Adapter"] --> L298N
+    ESP32 -- "GPIO 13 (Physical Trigger)" --> Button[" Push Button (Active-LOW)"]
+    L298N -- "12V Polarity Switching" --> Motors[" 2x 12V Johnson Gear Motors"]
+    Power[" 12V DC 2A Power Adapter"] --> L298N
     Power --> Buck["🔌 DC-DC Buck Converter (12V to 5V)"] --> ESP32
 ```
 
 ---
 
-## 🌟 Key Features
+##  Key Features
 
 *   **Wireless Dashboard Control:** A responsive, single-page web dashboard stored in flash memory (`PROGMEM`) using zero externals (no internet connection needed).
 *   **Captive Portal DNS:** Automatically redirects any connected Wi-Fi client directly to the curtain control panel (`192.168.4.1`), eliminating manual URL typing.
@@ -41,7 +41,7 @@ graph TD
 
 ---
 
-## 🔌 Hardware Configuration & Wiring Guide
+##  Hardware Configuration & Wiring Guide
 
 For stable operation, configure the ESP32 Dev Module and L298N H-Bridge Motor Driver as specified below:
 
@@ -65,7 +65,7 @@ For stable operation, configure the ESP32 Dev Module and L298N H-Bridge Motor Dr
 
 ---
 
-## 📂 File Directory
+##  File Directory
 
 *   **[`code/parda/parda.ino`](file:///d:/parda/code/parda/parda.ino)**: The main Arduino sketch containing the ESP32 Wi-Fi setup, Captive Portal DNS configuration, HTTP Server endpoints, and the non-blocking hardware control state machine.
 *   **[`code/parda/html.h`](file:///d:/parda/code/parda/html.h)**: Houses the minified, responsive UI dashboard string stored in Flash (`PROGMEM`) using raw literal HTML/CSS/Javascript.
@@ -74,7 +74,7 @@ For stable operation, configure the ESP32 Dev Module and L298N H-Bridge Motor Dr
 
 ---
 
-## 🚀 Compilation & Deployment
+## Compilation & Deployment
 
 ### 1. Arduino IDE Setup
 1. Open the **Arduino IDE**.
@@ -94,7 +94,7 @@ For stable operation, configure the ESP32 Dev Module and L298N H-Bridge Motor Dr
 
 ---
 
-## 🎮 How to Operate the System
+##  How to Operate the System
 
 1.  **Power Up:** Connect the 12V DC power adapter to the system. The ESP32 and L298N status LEDs will light up.
 2.  **Connect to Wi-Fi:** On a mobile phone or laptop, scan for Wi-Fi networks and connect to:
@@ -110,7 +110,7 @@ For stable operation, configure the ESP32 Dev Module and L298N H-Bridge Motor Dr
 
 ---
 
-## 👥 Credits & Development
+##  Credits & Development
 
 *   **Lead Hardware/Software Architect:** Sakhyam Bastakoti  
 *   **Institution:** Bhu Pu Sainik Rising Secondary English School, Rampur-5, Palpa, Nepal  
