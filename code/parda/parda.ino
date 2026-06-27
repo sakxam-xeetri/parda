@@ -22,12 +22,13 @@
 #include "html.h"
 
 // --- GPIO Pin Configurations ---
-#define IN1_PIN 26
-#define IN2_PIN 27
-#define IN3_PIN 14
-#define IN4_PIN 12
-#define ENA_PIN 25  // Enable pin for Motor Driver A
-#define ENB_PIN 33  // Enable pin for Motor Driver B
+// NOTE: GPIO 12 is an ESP32 bootstrapping pin. If your ESP32 fails to boot,
+// ensure the L298N driver or external circuitry is not pulling GPIO 12 HIGH during startup.
+#define IN1_PIN 12       // Control Output 1 (Motor A)
+#define IN2_PIN 14       // Control Output 2 (Motor A)
+#define ENA_PIN 25       // Enable pin for Motor Driver A (Optional: if using enable jumper, leave this unconnected)
+#define BUTTON_PIN 13    // Choose a GPIO pin for the button (e.g., GPIO 13)
+#define BUTTON_PRESSED LOW // LOW if button is connected to GND (uses internal pull-up resistor)
 
 // --- System Constants & Objects ---
 const char* AP_SSID = "INAUGURATION-BHU-PU";
@@ -54,6 +55,10 @@ unsigned long motorStartMillis = 0;
 unsigned long motorDuration = 8000; // Default 8 seconds run time (in milliseconds)
 unsigned long stoppedRecoveryStart = 0;
 const unsigned long STOPPED_RECOVERY_TIME = 1500; // Reset from STOPPED state to IDLE after 1.5s
+
+// --- Physical Button State Variables ---
+bool buttonWasPressed = false;
+bool buttonReleasedSinceLastStop = true;
 
 // --- Function Prototypes ---
 void setupPins();
@@ -107,6 +112,27 @@ void loop() {
   // Feed HTTP Web Server clients
   server.handleClient();
 
+  // Read physical button status
+  bool buttonPressed = (digitalRead(BUTTON_PIN) == BUTTON_PRESSED);
+
+  if (buttonPressed) {
+    if (buttonReleasedSinceLastStop && !buttonWasPressed) {
+      Serial.println("[BUTTON] Button pressed. Turning motor ON.");
+      setMotorsOpen();
+      currentState = STATE_OPENING;
+      motorStartMillis = millis();
+      buttonWasPressed = true;
+    }
+  } else {
+    buttonReleasedSinceLastStop = true;
+    if (buttonWasPressed) {
+      Serial.println("[BUTTON] Button released. Turning motor OFF.");
+      setMotorsStop();
+      currentState = STATE_IDLE;
+      buttonWasPressed = false;
+    }
+  }
+
   // Non-blocking timer checking for Motor Run duration
   unsigned long currentMillis = millis();
 
@@ -115,6 +141,8 @@ void loop() {
       Serial.println("[AUTO-STOP] Motor run duration elapsed. Stopping motors safely.");
       setMotorsStop();
       currentState = STATE_IDLE;
+      buttonWasPressed = false;
+      buttonReleasedSinceLastStop = false; // Prevent re-triggering until button is released
     }
   } 
   else if (currentState == STATE_STOPPED) {
@@ -131,47 +159,34 @@ void loop() {
 void setupPins() {
   pinMode(IN1_PIN, OUTPUT);
   pinMode(IN2_PIN, OUTPUT);
-  pinMode(IN3_PIN, OUTPUT);
-  pinMode(IN4_PIN, OUTPUT);
   pinMode(ENA_PIN, OUTPUT);
-  pinMode(ENB_PIN, OUTPUT);
+  pinMode(BUTTON_PIN, INPUT_PULLUP); // Set button pin as input with internal pull-up resistor
 
   // Drive all outputs LOW at start to ensure motor safety
   setMotorsStop();
   Serial.println("GPIO Pin mapping initialized and driven LOW (safe mode).");
+  Serial.print("Button pin initialized on GPIO ");
+  Serial.println(BUTTON_PIN);
 }
 
 void setMotorsStop() {
   digitalWrite(IN1_PIN, LOW);
   digitalWrite(IN2_PIN, LOW);
-  digitalWrite(IN3_PIN, LOW);
-  digitalWrite(IN4_PIN, LOW);
   digitalWrite(ENA_PIN, LOW);
-  digitalWrite(ENB_PIN, LOW);
 }
 
 void setMotorsOpen() {
-  // Motor A and Motor B Forward (both open curtain)
+  // Motor A Forward (OUT1 and OUT2)
   digitalWrite(IN1_PIN, HIGH);
   digitalWrite(IN2_PIN, LOW);
-  digitalWrite(IN3_PIN, HIGH);
-  digitalWrite(IN4_PIN, LOW);
-  
-  // Enable motor driver output
   digitalWrite(ENA_PIN, HIGH);
-  digitalWrite(ENB_PIN, HIGH);
 }
 
 void setMotorsClose() {
-  // Motor A and Motor B Reverse (both close curtain)
+  // Motor A Reverse (OUT1 and OUT2)
   digitalWrite(IN1_PIN, LOW);
   digitalWrite(IN2_PIN, HIGH);
-  digitalWrite(IN3_PIN, LOW);
-  digitalWrite(IN4_PIN, HIGH);
-  
-  // Enable motor driver output
   digitalWrite(ENA_PIN, HIGH);
-  digitalWrite(ENB_PIN, HIGH);
 }
 
 // --- WiFi AP Setup ---
