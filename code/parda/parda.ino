@@ -22,13 +22,20 @@
 #include "html.h"
 
 // --- GPIO Pin Configurations ---
-// NOTE: GPIO 12 is an ESP32 bootstrapping pin. If your ESP32 fails to boot,
-// ensure the L298N driver or external circuitry is not pulling GPIO 12 HIGH during startup.
-#define IN1_PIN 12       // Control Output 1 (Motor A)
-#define IN2_PIN 14       // Control Output 2 (Motor A)
-#define ENA_PIN 25       // Enable pin for Motor Driver A (Optional: if using enable jumper, leave this unconnected)
+#define IN1_PIN 27       // Control Output 1 (Motor A) - connected to IN1
+#define IN2_PIN 26       // Control Output 2 (Motor A) - connected to IN2
 #define BUTTON_PIN 13    // Choose a GPIO pin for the button (e.g., GPIO 13)
-#define BUTTON_PRESSED LOW // LOW if button is connected to GND (uses internal pull-up resistor)
+
+// --- BUTTON LOGIC CONFIGURATION ---
+// If the motor runs automatically without pressing the button:
+// OPTION A (Active-LOW, Default): Button connects pin 13 to GND when pressed.
+//   - BUTTON_PRESSED = LOW
+//   - BUTTON_PIN_MODE = INPUT_PULLUP
+// OPTION B (Active-HIGH): Button connects pin 13 to 3.3V when pressed.
+//   - BUTTON_PRESSED = HIGH
+//   - BUTTON_PIN_MODE = INPUT_PULLDOWN
+#define BUTTON_PRESSED LOW
+#define BUTTON_PIN_MODE INPUT_PULLUP
 
 // --- System Constants & Objects ---
 const char* AP_SSID = "INAUGURATION-BHU-PU";
@@ -52,13 +59,14 @@ enum SystemState {
 
 SystemState currentState = STATE_IDLE;
 unsigned long motorStartMillis = 0;
-unsigned long motorDuration = 8000; // Default 8 seconds run time (in milliseconds)
+unsigned long motorDuration = 8000; // Default 9 seconds run time (in milliseconds)
 unsigned long stoppedRecoveryStart = 0;
 const unsigned long STOPPED_RECOVERY_TIME = 1500; // Reset from STOPPED state to IDLE after 1.5s
 
 // --- Physical Button State Variables ---
 bool buttonWasPressed = false;
 bool buttonReleasedSinceLastStop = true;
+hthtos un the close in the block short in erj r
 
 // --- Function Prototypes ---
 void setupPins();
@@ -89,7 +97,7 @@ void setup() {
 
   // Load persistent configurations
   preferences.begin("curtain_sys", false);
-  motorDuration = preferences.getUInt("duration", 8000);
+  motorDuration = preferences.getUInt("duration", 9000);
   preferences.end();
   
   Serial.print("Loaded Motor Run Duration: ");
@@ -159,8 +167,7 @@ void loop() {
 void setupPins() {
   pinMode(IN1_PIN, OUTPUT);
   pinMode(IN2_PIN, OUTPUT);
-  pinMode(ENA_PIN, OUTPUT);
-  pinMode(BUTTON_PIN, INPUT_PULLUP); // Set button pin as input with internal pull-up resistor
+  pinMode(BUTTON_PIN, BUTTON_PIN_MODE); // Configures pull-up or pull-down resistor
 
   // Drive all outputs LOW at start to ensure motor safety
   setMotorsStop();
@@ -172,21 +179,18 @@ void setupPins() {
 void setMotorsStop() {
   digitalWrite(IN1_PIN, LOW);
   digitalWrite(IN2_PIN, LOW);
-  digitalWrite(ENA_PIN, LOW);
 }
 
 void setMotorsOpen() {
   // Motor A Forward (OUT1 and OUT2)
   digitalWrite(IN1_PIN, HIGH);
   digitalWrite(IN2_PIN, LOW);
-  digitalWrite(ENA_PIN, HIGH);
 }
 
 void setMotorsClose() {
   // Motor A Reverse (OUT1 and OUT2)
   digitalWrite(IN1_PIN, LOW);
   digitalWrite(IN2_PIN, HIGH);
-  digitalWrite(ENA_PIN, HIGH);
 }
 
 // --- WiFi AP Setup ---
